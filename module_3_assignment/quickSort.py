@@ -6,21 +6,21 @@ import sys
 
 
 def main(A): 
-    l = 1
-    r = n
-    count = 0
-    return quickSort(A,l,r,count)
+    l = 0
+    r = len(A) - 1
+    count = quickSort(A, l, r)
+    return count
 
 
-def quickSort(A, l, r, count):
-    if len(A) == 1:
-        return (A, 0)
-    p = choosePivot(A,l,r)
-    A = partition(A,l,r,p)
-    left_A, left_count = quickSort(A[l:p])
-    right_A, right_count = quickSort(A[p+1:r])
-
-    return (left_A.append(right_A), left_count+right_count)
+def quickSort(A, l, r):
+    if l >= r:
+        return 0
+    p = choosePivotMedianOfThree(A, l, r) # you can modify this one
+    A[l], A[p] = A[p], A[l]
+    p = partition(A, l, r)
+    left_count = quickSort(A, l, p - 1)
+    right_count = quickSort(A, p + 1, r)
+    return (r - l) + left_count + right_count
 
 # assignment is to explore three pivoting rules 
 # hence, I plan to create three different choosePivot subroutines that operate on A to get pivot position p, 
@@ -32,33 +32,27 @@ def choosePivotFirst(A, l, r):
 def choosePivotFinal(A, l, r):
     return r
 
-def choosePivotMedianOfThree(A,l,r):
-    if len(A) is odd
-        k = (l + r) // 2
-    else 
-        k = (l + r - 1 ) // 2
-    return median(A[l],A[k],A[r])
+def choosePivotMedianOfThree(A, l, r):
+    k = (l + r) // 2
+    trio = [(A[l], l), (A[k], k), (A[r], r)]
+    trio.sort()
+    return trio[1][1]
 
-def partition(A, l, r, p):
-    # swap p to the front
-    c = A[l]
-    p_value= A[p]
-    A[l] = A[p]
-    A[p] = c
-    # linear scan
-    i = l +1 
-    for j in l+1:r
-        if A[j] < p_value
-            c = A[i]
-            A[i] = A[j]
-            A[j] = c
-            i = i+1
-    # swap p back to the appropriate spot
-    c = A[l] # this is the p value
-    A[l] = A[i-1]
-    A[i-1] = c
-    return A
+def partition(A, l, r):
+    pivot = A[l]
+    i = l + 1
+    for j in range(l + 1, r + 1):
+        if A[j] < pivot:
+            A[i], A[j] = A[j], A[i]
+            i += 1
+    A[l], A[i - 1] = A[i - 1], A[l]
+    return i - 1
 
+# test
+# arr = [3, 8, 2, 5, 1, 4, 7, 6]
+# count = main(arr)
+# print("Sorted array:", arr)
+# print("Comparisons:", count)
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
@@ -67,5 +61,5 @@ if __name__ == "__main__":
     filepath = sys.argv[1]
     with open(filepath, 'r') as f:
         arr = [int(line.strip()) for line in f if line.strip()]    
-    _, count = main(arr)
+    count = main(arr)
     print(count)
