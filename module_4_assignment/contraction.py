@@ -6,18 +6,34 @@
 import sys
 import math
 
+def parse_graph(filepath):
+    edges = set()
+    with open(filepath, 'r') as f:
+        for line in f:
+            parts = list(map(int, line.strip().split()))
+            u = parts[0]
+            # print("starting ", u)
+            for v in parts[1:]:
+                if u < v:  # to avoid duplicate undirected edges
+                    edges.add((u, v))
+                    # print("added edge",u, ", ", v)
+                else:
+                    edges.add((v, u))
+                    # print("added edge",v, ", ", u)
+    return list(edges)
+
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Usage: python3 contraction.py <input_file>")
         sys.exit(1)
     filepath = sys.argv[1]
-    with open(filepath, 'r') as f:
-        arr = [int(line.strip()) for line in f if line.strip()]    # i need to fix this for the format of the adjacency list
-    # i think G can be a 2D array? or is this stupid? should G just be an edge list?
-
+    edges = sorted(parse_graph(filepath))
+    for edge in edges[:10]:
+        print(edge)
+    # print(edges[100])
     # set seed as 1234
     best_cut = contract(G, seed)
-    # have a array of n^2 log n seeds here
+    # have a array of n^2 log n seeds here and we're given that n is 200 so that's 211933 seeds
     # for seed in seed array, run contract and update best_cut if best_cut is smaller
 
     print(best_cut)
