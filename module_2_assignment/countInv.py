@@ -3,7 +3,8 @@
 # output: an int
 # test case: make a txt file with 1,3,5,2,4,6
 
-import math 
+import math
+import sys
 
 def countInv(x):
     if len(x) <= 1:
@@ -34,6 +35,11 @@ def merge_and_count(C, D):
     return B, splitInv
 
 if __name__ == "__main__":
-    test_array = [1, 3, 5, 2, 4, 6]
-    _, inv_count = countInv(test_array)
-    print(f"Inversion count: {inv_count}")
+    if len(sys.argv) != 2:
+        print("Usage: python countInv.py <input_file>")
+        sys.exit(1)
+    filepath = sys.argv[1]
+    with open(filepath, 'r') as f:
+        arr = [int(line.strip()) for line in f if line.strip()]
+    _, inv_count = countInv(arr)
+    print(inv_count)
