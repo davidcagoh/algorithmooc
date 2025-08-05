@@ -4,8 +4,8 @@
 # we have a guarantee that the min cut is returned with probability 1/n
 
 import sys
-import math
 import random
+import time
 
 def parse_graph(filepath):
     edges = set()
@@ -73,14 +73,18 @@ if __name__ == "__main__":
     print("Cut from one run:", cut)
     
     n = 200
-    num_trials = int(n * n * math.log(n))
+    num_trials = 200 # int(n * n * math.log(n))
     best_cut = float('inf')
+
+    start_time = time.time()
 
     for trial_seed in range(num_trials):
         trial_cut = contract(edges.copy(), trial_seed)
         if trial_cut < best_cut:
             best_cut = trial_cut
 
+    end_time = time.time()
     print("Best cut found after", num_trials, "trials:", best_cut)
-
+    print("Time taken:", round(end_time - start_time, 2), "seconds")
+    
     # print(best_cut)
