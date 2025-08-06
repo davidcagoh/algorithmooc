@@ -10,14 +10,17 @@ from collections import defaultdict
 
 
 def parse_graph(filepath):
+    edges = []
+    max_node = 0
     with open(filepath, 'r') as f:
-        edges = [int(line.strip()) for line in f if line.strip()]    
-    return edges
+        for line in f:
+            if line.strip():
+                tail, head = map(int, line.strip().split())
+                edges.append((tail, head))
+                max_node = max(max_node, tail, head)
+    return edges, max_node
 
-edges = [
-    (1, 2), (2, 4), (4, 1), (4, 3), (3, 5)
-]
-num_nodes = 5
+
 
 def build_graph(edges, num_nodes):
     G = defaultdict(list)
@@ -34,13 +37,11 @@ def build_graph(edges, num_nodes):
 def kosaraju_scc(edges, num_nodes):
     G, G_rev = build_graph(edges,num_nodes)
     finishing_order = first_pass_loop(G_rev, num_nodes)
-    print(finishing_order)
-    # scc_sizes = second_pass_loop(G, num_nodes, finishing_order)
-                                 
-    # scc_sizes.sort(reverse=True)
-    # while len(scc_sizes) < 5:
-    #     scc_sizes.append(0)
-    # return scc_sizes[:5]
+    scc_sizes = second_pass_loop(G, num_nodes, finishing_order)
+    scc_sizes.sort(reverse=True)
+    while len(scc_sizes) < 5:
+        scc_sizes.append(0)
+    return scc_sizes[:5]
 
 
 def first_pass_loop(G_rev, num_nodes):
@@ -69,11 +70,33 @@ def dfs_iterative_first_pass(G_rev, start, explored, finishing_order, finished):
                 finished[node] = True
                 finishing_order.append(node)
 
-kosaraju_scc(edges,num_nodes)
+def second_pass_loop(G, num_nodes, finishing_order):
+    explored = set()
+    scc_sizes = []
+    for node in reversed(finishing_order):
+        if node not in explored:
+            scc = dfs_iterative_second_pass(G, node, explored)
+            scc_sizes.append(len(scc))
+    return scc_sizes
 
-# ftimes, order = first_pass_loop(G_rev, nodes)
-# print("Finishing times:", ftimes)
-# print("Finishing order:", order)
+def dfs_iterative_second_pass(G, start, explored):
+    stack = [start]
+    scc = []
+    while stack:
+        node = stack.pop()
+        if node not in explored:
+            explored.add(node)
+            scc.append(node)
+            for nei in G[node]:
+                if nei not in explored:
+                    stack.append(nei)
+    return scc
+
+# edges = [
+#     (1, 2), (2, 4), (4, 1), (4, 3), (3, 5)
+# ]
+# num_nodes = 5
+# print(kosaraju_scc(edges,num_nodes))
 
 # basically starting from node n, you DFS it and label finishing times on the way out. 
 # i think after the above is done i would want to check with toy examples if the labelling of finishing times works properly
@@ -81,13 +104,11 @@ kosaraju_scc(edges,num_nodes)
 # then after everything we have to add bookkeeping code to keep track of the sizes of all the strongly connected components
 # i wonder how to manage the modularity of the code; should i make multiple similar subroutines dealing with reversed edges or something to avoid having to duplicate G?
 
-# if __name__ == "__main__":
-#     if len(sys.argv) != 2:
-#         print("Usage: python3 quickSort.py <input_file>")
-#         sys.exit(1)
-#     filepath = sys.argv[1]
-#     edges = parse_graph(filepath)
-#     G, G_rev = build_graph(edges)    
-# sizes = main()
-#     print(sizes)
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: python3 kosaraju.py <input_file>")
+        sys.exit(1)
+    filepath = sys.argv[1]
+    edges, max_node = parse_graph(filepath)
+    print(kosaraju_scc(edges,max_node))
 
