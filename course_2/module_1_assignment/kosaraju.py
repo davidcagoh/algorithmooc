@@ -12,25 +12,34 @@ def parse_graph(filepath):
         edges = [int(line.strip()) for line in f if line.strip()]    
     return edges
 
-def DFSLoop(G):
-    t = 0 # global variable for finishing times
-    s = NULL # global variable for current source vertex / leader vertex
-    # should we be initializing an array to track leader vertices here
-    # should we be initializing an array to track finishing times here
-    # for nodes i = n down to 1
-        # if i not explored, set s = i
-        # run DFS(G, i)
-    return 0
+def first_pass_loop(G_rev, nodes):
+    explored = set()
+    finishing_times = {}
+    t = [0]
+    for node in sorted(nodes, reverse=True):
+        if node not in explored:
+            dfs_first_pass(G_rev, node, explored, finishing_times, t)
+    return finishing_times
 
-def DFS(G,i):
-    # mark i as explored
-    # set leader(i) equal to whatever global variable s is
-    # for each arc (i,j) in G  
-        # if j not explored 
-            # DFS (G, j)
-    # add 1 to the global value t
-    # set f(i) to t
-    return 0
+def dfs_first_pass(G_rev, node, explored, finishing_times, t):
+    explored.add(node)
+    for nei in G_rev.get(node, []):
+        if nei not in explored:
+            dfs_first_pass(G_rev, nei, explored, finishing_times, t)
+    t[0] += 1
+    finishing_times[node] = t[0]
+
+G_rev = {
+    2: [1],
+    3: [2],
+    1: [3],
+    4: [3],
+    5: [4],
+}
+nodes = {1,2,3,4,5}
+
+ftimes = first_pass_loop(G_rev, nodes)
+print(ftimes)
 
 # basically starting from node n, you DFS it and label finishing times on the way out. 
 # i think after the above is done i would want to check with toy examples if the labelling of finishing times works properly
@@ -38,11 +47,11 @@ def DFS(G,i):
 # then after everything we have to add bookkeeping code to keep track of the sizes of all the strongly connected components
 # i wonder how to manage the modularity of the code; should i make multiple similar subroutines dealing with reversed edges or something to avoid having to duplicate G?
 
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python3 quickSort.py <input_file>")
-        sys.exit(1)
-    filepath = sys.argv[1]
-    edges = parse_graph(filepath)
-    sizes = main(edges)
-    print(sizes)
+# if __name__ == "__main__":
+#     if len(sys.argv) != 2:
+#         print("Usage: python3 quickSort.py <input_file>")
+#         sys.exit(1)
+#     filepath = sys.argv[1]
+#     edges = parse_graph(filepath)
+#     sizes = main(edges)
+#     print(sizes)
