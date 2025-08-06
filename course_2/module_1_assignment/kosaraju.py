@@ -15,7 +15,7 @@ def parse_graph(filepath):
     return edges
 
 edges = [
-    (1, 2), (2, 3), (3, 1), (3, 4), (4, 5)
+    (1, 2), (2, 4), (4, 1), (4, 3), (3, 5)
 ]
 num_nodes = 5
 
@@ -29,30 +29,47 @@ def build_graph(edges, num_nodes):
     for node in range(1, num_nodes + 1):
         G[node]
         G_rev[node]
-    return G, G_rev
+    return G, G_rev  
 
-print(build_graph(edges, num_nodes))    
+def kosaraju_scc(edges, num_nodes):
+    G, G_rev = build_graph(edges,num_nodes)
+    finishing_order = first_pass_loop(G_rev, num_nodes)
+    print(finishing_order)
+    # scc_sizes = second_pass_loop(G, num_nodes, finishing_order)
+                                 
+    # scc_sizes.sort(reverse=True)
+    # while len(scc_sizes) < 5:
+    #     scc_sizes.append(0)
+    # return scc_sizes[:5]
 
 
-def first_pass_loop(G_rev, nodes):
+def first_pass_loop(G_rev, num_nodes):
     explored = set()
-    finishing_times = {}
     finishing_order = []
-    t = [0]
-    for node in sorted(nodes, reverse=True):
+    finished = defaultdict(bool)
+    # First pass: on reversed graph
+    for node in range(num_nodes, 0, -1):
         if node not in explored:
-            dfs_first_pass(G_rev, node, explored, finishing_times, t, finishing_order)
-    return finishing_times, finishing_order
+            dfs_iterative_first_pass(G_rev, node, explored, finishing_order, finished)
+    return finishing_order
 
-def dfs_first_pass(G_rev, node, explored, finishing_times, t, finishing_order):
-    explored.add(node)
-    for nei in sorted(G_rev.get(node, []), reverse=True):
-        if nei not in explored:
-            dfs_first_pass(G_rev, nei, explored, finishing_times, t, finishing_order)
-    t[0] += 1
-    finishing_times[node] = t[0]
-    finishing_order.append(node)
+def dfs_iterative_first_pass(G_rev, start, explored, finishing_order, finished):
+    stack = [start]
+    while stack:
+        node = stack[-1]
+        if node not in explored:
+            explored.add(node)
+            # Push neighbors
+            for nei in sorted(G_rev[node], reverse=True):
+                if nei not in explored:
+                    stack.append(nei)
+        else:
+            stack.pop()
+            if not finished[node]:
+                finished[node] = True
+                finishing_order.append(node)
 
+kosaraju_scc(edges,num_nodes)
 
 # ftimes, order = first_pass_loop(G_rev, nodes)
 # print("Finishing times:", ftimes)
