@@ -1,0 +1,1 @@
+# basically implement kruskal's global thingy (union find?) and it should be chill
