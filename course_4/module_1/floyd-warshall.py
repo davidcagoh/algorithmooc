@@ -35,6 +35,8 @@
 # return smallest among them, skipping over any that terminated because of negative cycles detected
 
 
+# in the following code, optimised so that a single 2D array is constantly updated and we do parse the graph to initialize
+
 import math
 
 def parse_graph(path):
